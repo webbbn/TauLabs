@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       pios_semaphore.h
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2013
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2014
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
  * @addtogroup PIOS_Semaphore Semaphore Abstraction
@@ -33,18 +33,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#if defined(PIOS_INCLUDE_FREERTOS)
+
 struct pios_semaphore
 {
-#if defined(PIOS_INCLUDE_FREERTOS)
 	xSemaphoreHandle sema_handle;
-#else
-	uint32_t sema_count;
-#endif
 };
+
+#elif defined(PIOS_INCLUDE_CHIBIOS)
+
+struct pios_semaphore
+{
+	BinarySemaphore sema;
+};
+
+#else
+
+struct pios_semaphore
+{
+	uint32_t sema_count;
+};
+
+#endif
 
 /*
  * The following functions implement the concept of a binary semaphore usable
- * with and without PIOS_INCLUDE_FREERTOS.
+ * with PIOS_INCLUDE_FREERTOS, PIOS_INCLUDE_CHIBIOS or without rtos at all.
  *
  * Note that this is not the same as:
  * - counting semaphore
@@ -52,6 +66,7 @@ struct pios_semaphore
  * - recursive mutex
  *
  * see FreeRTOS documentation for details: http://www.freertos.org/a00113.html
+ * see ChibiOS documentation for details: http://chibios.sourceforge.net/html/group__synchronization.html
  */
 
 struct pios_semaphore *PIOS_Semaphore_Create(void);
