@@ -6,25 +6,26 @@
  * @brief HAL code to interface to the OpenPilot AHRS module
  * @{
  *
- * @file       pios_opahrs.c  
+ * @file       pios_opahrs.c
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2014
  * @brief      Hardware commands to communicate with the AHRS
  * @see        The GNU Public License (GPL) Version 3
- * 
+ *
  *****************************************************************************/
-/* 
- * This program is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 3 of the License, or 
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along 
- * with this program; if not, write to the Free Software Foundation, Inc., 
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
@@ -49,7 +50,7 @@ static int32_t opahrs_msg_txrx(const uint8_t * tx, uint8_t * rx, uint32_t len)
 	int32_t rc;
 
 	PIOS_SPI_RC_PinSet(PIOS_OPAHRS_SPI, 0);
-#ifdef PIOS_INCLUDE_FREERTOS
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 	vTaskDelay(MS2TICKS(1));
 #else
 	PIOS_DELAY_WaitmS(20);
@@ -82,7 +83,7 @@ static enum opahrs_result opahrs_msg_v1_send_req(const struct opahrs_msg_v1 *req
 			case OPAHRS_MSG_LINK_STATE_BUSY:
 			case OPAHRS_MSG_LINK_STATE_INACTIVE:
 				/* Wait for a small delay and retry */
-#ifdef PIOS_INCLUDE_FREERTOS
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 				vTaskDelay(MS2TICKS(1));
 #else
 				PIOS_DELAY_WaitmS(20);
@@ -96,7 +97,7 @@ static enum opahrs_result opahrs_msg_v1_send_req(const struct opahrs_msg_v1 *req
 		case OPAHRS_MSG_TYPE_USER_V0:
 		case OPAHRS_MSG_TYPE_USER_V1:
 			/* Wait for a small delay and retry */
-#ifdef PIOS_INCLUDE_FREERTOS
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 			vTaskDelay(MS2TICKS(1));
 #else
 			PIOS_DELAY_WaitmS(50);
@@ -129,7 +130,7 @@ static enum opahrs_result opahrs_msg_v1_recv_rsp(enum opahrs_msg_v1_tag tag, str
 			switch (rsp->payload.link.state) {
 			case OPAHRS_MSG_LINK_STATE_BUSY:
 				/* Wait for a small delay and retry */
-#ifdef PIOS_INCLUDE_FREERTOS
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 				vTaskDelay(MS2TICKS(1));
 #else
 				PIOS_DELAY_WaitmS(20);
@@ -194,7 +195,7 @@ enum opahrs_result PIOS_OPAHRS_resync(void)
 	opahrs_msg_v1_init_link_tx(&req, OPAHRS_MSG_LINK_TAG_NOP);
 
 	PIOS_SPI_RC_PinSet(PIOS_OPAHRS_SPI, 0);
-#ifdef PIOS_INCLUDE_FREERTOS
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 	vTaskDelay(MS2TICKS(1));
 #else
 	PIOS_DELAY_WaitmS(20);
@@ -212,7 +213,7 @@ enum opahrs_result PIOS_OPAHRS_resync(void)
 			rc = OPAHRS_RESULT_OK;
 			break;
 		}
-#ifdef PIOS_INCLUDE_FREERTOS
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 		vTaskDelay(MS2TICKS(1));
 #else
 		PIOS_DELAY_WaitmS(10);

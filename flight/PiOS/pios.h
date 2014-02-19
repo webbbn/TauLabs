@@ -5,7 +5,7 @@
  *
  * @file       pios.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
  * @brief      Main PiOS header to include all the compiled in PiOS options
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -40,6 +40,16 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+// portTICK_RATE_MS is in [ms/tick].
+// See http://sourceforge.net/tracker/?func=detail&aid=3498382&group_id=111543&atid=659636
+#define TICKS2MS(t)	((t) * (portTICK_RATE_MS))
+#define MS2TICKS(m)	((m) / (portTICK_RATE_MS))
+#endif
+
+#if defined(PIOS_INCLUDE_CHIBIOS)
+#include "ch.h"
+#include "hal.h"
+#include "pios_freertos_transition.h"
 #endif
 
 /* C Lib Includes */
@@ -101,7 +111,7 @@
 #if defined(PIOS_INCLUDE_DMA_CB_SUBSCRIBING_FUNCTION)
 #include <pios_dma.h>
 #endif
-#if defined(PIOS_INCLUDE_FREERTOS)
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 #include <pios_sensors.h>
 #endif
 #include <pios_dsm.h>
@@ -203,11 +213,6 @@
 #include <pios_crc.h>
 
 #define NELEMENTS(x) (sizeof(x) / sizeof(*(x)))
-
-// portTICK_RATE_MS is in [ms/tick].
-// See http://sourceforge.net/tracker/?func=detail&aid=3498382&group_id=111543&atid=659636
-#define TICKS2MS(t)	((t) * (portTICK_RATE_MS))
-#define MS2TICKS(m)	((m) / (portTICK_RATE_MS))
 
 #endif /* PIOS_H */
 
