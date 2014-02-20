@@ -82,10 +82,10 @@ typedef struct Thread *xTaskHandle;
 #define tskIDLE_PRIORITY IDLEPRIO
 #define configMAX_PRIORITIES HIGHPRIO
 #define xTaskGetTickCount chTimeNow
-#define uxTaskGetRunTime(x) chThdGetTicks(x)
 #if CH_DBG_FILL_THREADS
 unsigned long uxTaskGetStackHighWaterMark(Thread *thread);
 #endif
+unsigned long uxTaskGetRunTime(Thread *thread);
 long xTaskCreate(void (*pf)(void *), const signed char* name, size_t size, void *arg, tprio_t prio, xTaskHandle *handle_p);
 void vTaskDelete(xTaskHandle task);
 

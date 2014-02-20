@@ -113,6 +113,18 @@ unsigned long uxTaskGetStackHighWaterMark(Thread *thread)
 }
 #endif
 
+unsigned long uxTaskGetRunTime(Thread *thread)
+{
+	chSysLock();
+
+	uint32_t result = thread->ticks_total;
+	thread->ticks_total = 0;
+
+	chSysUnlock();
+
+	return result;
+}
+
 long xTaskCreate(void (*pf)(void *), const signed char* name, size_t size, void *arg, tprio_t prio, xTaskHandle *handle_p)
 {
 	Thread *thread = chThdCreateFromHeap(NULL, size * 4, prio, (msg_t (*)(void *))pf, arg);
