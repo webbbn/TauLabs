@@ -9,7 +9,7 @@
  * @file       pios_sys.c  
  * @author     Michael Smith Copyright (C) 2011
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
  * @brief      Sets up basic STM32 system hardware, functions are called from Main.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -152,7 +152,7 @@ void PIOS_SYS_Init(void)
 int32_t PIOS_SYS_Reset(void)
 {
 	/* Disable all RTOS tasks */
-#if defined(PIOS_INCLUDE_FREERTOS)
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 	/* port specific FreeRTOS function to disable tasks (nested) */
 	portENTER_CRITICAL();
 #endif

@@ -8,7 +8,7 @@
  *
  * @file       pios_i2c.c
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
  * @brief      I2C Enable/Disable routines
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -34,7 +34,7 @@
 
 #if defined(PIOS_INCLUDE_I2C)
 
-#if defined(PIOS_INCLUDE_FREERTOS)
+#if defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)
 #define USE_FREERTOS
 #endif
 
@@ -419,7 +419,7 @@ static bool PIOS_I2C_validate(struct pios_i2c_adapter *i2c_adapter)
 	return (i2c_adapter->magic == PIOS_I2C_DEV_MAGIC);
 }
 
-#if defined(PIOS_INCLUDE_FREERTOS) && 0
+#if (defined(PIOS_INCLUDE_FREERTOS) || defined(PIOS_INCLUDE_CHIBIOS)) && 0
 static struct pios_i2c_dev *PIOS_I2C_alloc(void)
 {
 	struct pios_i2c_dev *i2c_adapter;
