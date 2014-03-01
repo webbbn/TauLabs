@@ -35,6 +35,7 @@
 #include <fifo_buffer.h>
 #include <uavobjectmanager.h>
 #include <oplinkstatus.h>
+#include "pios_semaphore.h"
 #include "pios_rfm22b.h"
 
 // ************************************
@@ -669,7 +670,7 @@ struct pios_rfm22b_dev {
 	struct rfm22b_pair_stats pair_stats[OPLINKSTATUS_PAIRIDS_NUMELEM];
 
 	// ISR pending semaphore
-	xSemaphoreHandle isrPending;
+	struct pios_semaphore *isrPending;
 
 	// The com configuration callback
 	PIOS_RFM22B_ComConfigCallback com_config_cb;
