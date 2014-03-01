@@ -2,11 +2,11 @@
  ******************************************************************************
  * @addtogroup TauLabsTargets Tau Labs Targets
  * @{
- * @addtogroup Sparky Tau Labs Sparky support files
+ * @addtogroup Sparky Sparky support files
  * @{
  *
- * @file       sparky.c 
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ * @file       main.c
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
  * @brief      Start FreeRTOS and the Modules.
  * @see        The GNU Public License (GPL) Version 3
  * 
@@ -34,27 +34,17 @@
 #include "systemmod.h"
 
 /* Task Priorities */
-#define PRIORITY_TASK_HOOKS             (tskIDLE_PRIORITY + 3)
-
-/* Global Variables */
+#define INIT_TASK_PRIORITY	(tskIDLE_PRIORITY + configMAX_PRIORITIES - 1)	// max priority
+#define INIT_TASK_STACK		(1024 / 4)										// XXX this seems excessive
 
 /* Prototype of PIOS_Board_Init() function */
 extern void PIOS_Board_Init(void);
-extern void Stack_Change(void);
-
-/* Local Variables */
-#define INIT_TASK_PRIORITY	(tskIDLE_PRIORITY + configMAX_PRIORITIES - 1)	// max priority
-#define INIT_TASK_STACK		(1024 / 4)										// XXX this seems excessive
-static xTaskHandle initTaskHandle;
 
 /* Function Prototypes */
 static void initTask(void *parameters);
 
-/* Prototype of generated InitModules() function */
-extern void InitModules(void);
-
 /**
-* OpenPilot Main function:
+* Tau Labs Main function:
 *
 * Initialize PiOS<BR>
 * Create the "System" task (SystemModInitializein Modules/System/systemmod.c) <BR>
@@ -64,51 +54,42 @@ extern void InitModules(void);
 */
 int main()
 {
-	int	result;
+	halInit();
+	chSysInit();
 
-	/* NOTE: Do NOT modify the following start-up sequence */
-	/* Any new initialization functions should be added in OpenPilotInit() */
-	vPortInitialiseBlocks();
+	boardInit();
 
 	/* Brings up System using CMSIS functions, enables the LEDs. */
 	PIOS_SYS_Init();
 
 	/* For Revolution we use a FreeRTOS task to bring up the system so we can */
 	/* always rely on FreeRTOS primitive */
-	result = xTaskCreate(initTask, (const signed char *)"init",
-						 INIT_TASK_STACK, NULL, INIT_TASK_PRIORITY,
-						 &initTaskHandle);
+	Thread *init_thread;
+	int result = xTaskCreate(initTask, (const signed char *)"init",
+			INIT_TASK_STACK, NULL, INIT_TASK_PRIORITY,
+			&init_thread);
 	PIOS_Assert(result == pdPASS);
 
-	/* Start the FreeRTOS scheduler */
-	vTaskStartScheduler();
+	// wait for init to finish and release its memory
+	chThdWait(init_thread);
 
-	/* If all is well we will never reach here as the scheduler will now be running. */
-	/* Do some PIOS_LED_HEARTBEAT to user that something bad just happened */
-	PIOS_LED_Off(PIOS_LED_HEARTBEAT); \
-	for(;;) { \
-		PIOS_LED_Toggle(PIOS_LED_HEARTBEAT); \
-		PIOS_DELAY_WaitmS(100); \
-	};
+	// wait infinitely
+	chThdSleep(TIME_INFINITE);
 
 	return 0;
 }
 /**
- * Initialisation task.
+ * Initialization task.
  *
- * Runs board and module initialisation, then terminates.
+ * Runs board and module initialization, then terminates.
  */
-void
-initTask(void *parameters)
+void initTask(void *parameters)
 {
 	/* board driver init */
 	PIOS_Board_Init();
 
 	/* Initialize modules */
 	MODULE_INITIALISE_ALL(PIOS_WDG_Clear);
-
-	/* terminate this task */
-	vTaskDelete(NULL);
 }
 
 /**
