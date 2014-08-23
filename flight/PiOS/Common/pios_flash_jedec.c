@@ -228,6 +228,12 @@ static int32_t PIOS_Flash_Jedec_ReadID(struct jedec_flash_dev *flash_dev)
 	if (PIOS_Flash_Jedec_ClaimBus(flash_dev) < 0)
 		return -2;
 
+	// The MX25L3206E device requires toggling the chip select to bring it out of deep sleep
+	PIOS_DELAY_WaituS(10);
+	PIOS_SPI_RC_PinSet(flash_dev->spi_id, flash_dev->slave_num, 1);
+	PIOS_DELAY_WaituS(10);
+	PIOS_SPI_RC_PinSet(flash_dev->spi_id, flash_dev->slave_num, 0);
+
 	uint8_t out[] = {
 		JEDEC_DEVICE_ID,
 		0,
